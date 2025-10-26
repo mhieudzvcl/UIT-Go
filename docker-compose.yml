@@ -1,25 +1,7 @@
+version: "3.9"
+
 services:
-  user-service:
-    build:
-      context: ./services/user-service
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3000"
-
-  driver-service:
-    build:
-      context: ./services/driver-service
-      dockerfile: Dockerfile
-    ports:
-      - "3002:3000"
-
-  trip-service:
-    build:
-      context: ./services/trip-service
-      dockerfile: Dockerfile
-    ports:
-      - "3003:3000"
-
+  # Chỉ giữ payment-service
   payment-service:
     build:
       context: ./services/payment-service

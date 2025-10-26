@@ -1,4 +1,4 @@
-const paymentController = require('../controllers/paymentController');
+const paymentController = require('./controllers/paymentController');
 
 async function routes(fastify) {
   fastify.post('/payments', paymentController.createPayment);
