@@ -3,10 +3,9 @@ const fastify = require('fastify')({ logger: true });
 
 const paymentRoutes = require('./paymentRoutes');
 
-// Sử dụng @fastify/cors thay vì fastify-cors
+
 fastify.register(require('@fastify/cors'), {
-  // Nếu cần, thêm options ở đây, ví dụ:
-  // origin: '*' 
+
 });
 
 fastify.register(paymentRoutes);

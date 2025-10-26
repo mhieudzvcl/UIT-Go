@@ -1,6 +1,3 @@
-// src/services/paymentService.js
-
-// Đây chỉ là dummy implementation, sau này bạn có thể connect DB/Redis
 const payments = []; // array tạm lưu payment
 
 const processPayment = async (data) => {
