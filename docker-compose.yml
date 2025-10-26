@@ -1,0 +1,48 @@
+services:
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+
+  driver-service:
+    build:
+      context: ./services/driver-service
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+
+  trip-service:
+    build:
+      context: ./services/trip-service
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3000"
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3000"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/payments
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: payments
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
