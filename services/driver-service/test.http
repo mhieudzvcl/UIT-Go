@@ -1,0 +1,23 @@
+### health
+GET http://localhost:8001/healthz
+
+### create
+POST http://localhost:8001/v1/drivers
+Content-Type: application/json
+
+{ "user_id":"u9", "full_name":"Pham Van C", "phone":"0909" }
+
+### online
+PATCH http://localhost:8001/v1/drivers/1/status
+Content-Type: application/json
+
+{ "status":"online" }
+
+### location
+POST http://localhost:8001/v1/drivers/1/location
+Content-Type: application/json
+
+{ "lat": 10.776, "lng": 106.7, "accuracy": 8 }
+
+### search
+GET http://localhost:8001/v1/drivers?status=online&near=10.776,106.7&radius_km=5

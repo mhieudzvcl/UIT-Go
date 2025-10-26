@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   # Chỉ giữ payment-service
@@ -7,14 +7,24 @@ services:
       context: ./services/payment-service
       dockerfile: Dockerfile
     ports:
-      - "3004:3000"
+      - '3004:3000'
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/payments
       - REDIS_URL=redis://redis:6379
     depends_on:
       - db
       - redis
-
+  driver-svc:
+    build:
+      context: ./services/driver-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./services/driver-service/.env
+    ports:
+      - '8001:8000' # host:container (đổi host port sang 8001)
+    depends_on:
+      db:
+        condition: service_started
   db:
     image: postgres:15-alpine
     environment:
@@ -22,9 +32,9 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: payments
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
