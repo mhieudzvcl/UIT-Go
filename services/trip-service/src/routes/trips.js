@@ -4,8 +4,8 @@ import { createTripHandler, completeTripHandler, getTripHandler } from '../contr
 
 const router = express.Router();
 
-router.post('/', createTripHandler);
-router.post('/:id/complete', completeTripHandler);
-router.get('/:id',  getTripHandler);
+router.post('/', verifyToken, createTripHandler);
+router.post('/:id/complete', verifyToken, completeTripHandler);
+router.get('/:id', verifyToken, getTripHandler);
 
 export default router;

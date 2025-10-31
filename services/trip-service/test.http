@@ -1,7 +1,7 @@
-### Health check
+### 🔍 1. Health Check
 GET http://localhost:8082/healthz
 
-### Tạo chuyến đi
+### 🚗 2. Tạo chuyến đi
 POST http://localhost:8082/trips
 Content-Type: application/json
 
@@ -10,3 +10,12 @@ Content-Type: application/json
   "origin": { "lat": 10.762622, "lng": 106.660172 },
   "destination": { "lat": 10.776530, "lng": 106.700981 }
 }
+
+### ✅ 3. Hoàn tất chuyến đi (nhập ID thật sau khi tạo)
+POST http://localhost:8082/trips/1/complete
+Content-Type: application/json
+
+{}
+
+### 🔎 4. Lấy thông tin chuyến đi theo ID
+GET http://localhost:8082/trips/1
