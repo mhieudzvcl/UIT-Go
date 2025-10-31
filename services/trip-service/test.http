@@ -1,0 +1,12 @@
+### Health check
+GET http://localhost:8082/healthz
+
+### Tạo chuyến đi
+POST http://localhost:8082/trips
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "origin": { "lat": 10.762622, "lng": 106.660172 },
+  "destination": { "lat": 10.776530, "lng": 106.700981 }
+}
