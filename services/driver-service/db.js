@@ -11,3 +11,4 @@ export async function q(text, params) {
   const res = await pool.query(text, params);
   return res;
 }
+export default pool;

@@ -1,26 +1,32 @@
-### 🩺 Health Check cho tất cả service
-
-GET http://localhost:8082/healthz
-###
+### ✅ 1. Kiểm tra từng service
 GET http://localhost:3000/healthz
 ###
 GET http://localhost:3002/healthz
 ###
 GET http://localhost:3003/healthz
+###
+GET http://localhost:8082/healthz
 
-### 👤 User Service - Lấy thông tin user (giả định userId=1)
-GET http://localhost:3000/users/1
-Content-Type: application/json
 
-### 🚗 Driver Service - Tìm tài xế gần vị trí
-GET http://localhost:3002/drivers/search?lat=10.762622&lng=106.660172
-Content-Type: application/json
+### 👤 2. Lấy thông tin User (UserService)
+GET http://localhost:3000/api/users/1
+Accept: application/json
 
-### 💳 Payment Service - Health test
-GET http://localhost:3003/
-Content-Type: application/json
 
-### 🧭 Trip Service - Tạo chuyến đi
+### 🚗 3. Lấy danh sách tài xế (DriverService)
+GET http://localhost:3002/drivers
+Accept: application/json
+
+
+
+### 💳 4. Kiểm tra thanh toán mẫu (PaymentService)
+GET http://localhost:3003/payments/1
+Accept: application/json
+
+
+
+
+### 🚘 5. Tạo chuyến đi mới (TripService)
 POST http://localhost:8082/trips
 Content-Type: application/json
 
@@ -30,12 +36,14 @@ Content-Type: application/json
   "destination": { "lat": 10.776530, "lng": 106.700981 }
 }
 
-### ✅ Hoàn tất chuyến đi
+
+### 🔎 6. Xem chi tiết chuyến đi vừa tạo
+GET http://localhost:8082/trips/1
+Accept: application/json
+
+
+### ✅ 7. Hoàn tất chuyến đi
 POST http://localhost:8082/trips/1/complete
 Content-Type: application/json
 
 {}
-
-### 🔍 Lấy thông tin chuyến đi
-GET http://localhost:8082/trips/1
-Content-Type: application/json
