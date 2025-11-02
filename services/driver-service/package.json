@@ -4,8 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "node src/app.js",
-    "start": "node src/app.js",
+    "dev": "node server.js",
+    "start": "node server.js",
     "db:init": "psql $PGURL -f sql/init.sql"
   },
   "dependencies": {

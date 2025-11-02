@@ -1,16 +1,19 @@
-import express from 'express';
-const app = express();
-app.use(express.json());
+import express from 'express'
+const app = express()
+app.use(express.json())
 
+// ✨ Healthz cho PaymentService
+app.get('/healthz', (_, res) => res.json({ status: 'ok' }))
+
+// (các route sẵn có)
 app.post('/payments/estimate', (req, res) => {
-  const { distance_km } = req.body;
-  res.json({ amount: distance_km * 10000 });
-});
+  const { distance_km } = req.body || {}
+  const km = Number(distance_km || 0)
+  const price = Math.max(15000, Math.round(km * 10000)) // ví dụ: 10k/km, min 15k
+  return res.json({ price, currency: 'VND' })
+})
 
-app.post('/payments/charge', (req, res) => {
-  const { trip_id, amount } = req.body;
-  res.json({ trip_id, amount, status: 'charged' });
-});
-
-app.get('/healthz', (_, res) => res.json({ status: 'ok' }));
-app.listen(3003, () => console.log('PaymentService running on port 3003'));
+const PORT = process.env.PORT || 3004
+app.listen(PORT, '0.0.0.0', () =>
+  console.log(`PaymentService running on ${PORT}`)
+)
