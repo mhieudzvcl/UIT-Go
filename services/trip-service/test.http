@@ -1,7 +1,26 @@
-### 🔍 1. Health Check
-GET http://localhost:8082/healthz
+### 🩺 Health Check cho tất cả service
 
-### 🚗 2. Tạo chuyến đi
+GET http://localhost:8082/healthz
+###
+GET http://localhost:3000/healthz
+###
+GET http://localhost:3002/healthz
+###
+GET http://localhost:3003/healthz
+
+### 👤 User Service - Lấy thông tin user (giả định userId=1)
+GET http://localhost:3000/users/1
+Content-Type: application/json
+
+### 🚗 Driver Service - Tìm tài xế gần vị trí
+GET http://localhost:3002/drivers/search?lat=10.762622&lng=106.660172
+Content-Type: application/json
+
+### 💳 Payment Service - Health test
+GET http://localhost:3003/
+Content-Type: application/json
+
+### 🧭 Trip Service - Tạo chuyến đi
 POST http://localhost:8082/trips
 Content-Type: application/json
 
@@ -11,11 +30,12 @@ Content-Type: application/json
   "destination": { "lat": 10.776530, "lng": 106.700981 }
 }
 
-### ✅ 3. Hoàn tất chuyến đi (nhập ID thật sau khi tạo)
+### ✅ Hoàn tất chuyến đi
 POST http://localhost:8082/trips/1/complete
 Content-Type: application/json
 
 {}
 
-### 🔎 4. Lấy thông tin chuyến đi theo ID
+### 🔍 Lấy thông tin chuyến đi
 GET http://localhost:8082/trips/1
+Content-Type: application/json
