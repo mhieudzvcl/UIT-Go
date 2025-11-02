@@ -14,3 +14,6 @@ app.post('/payments/charge', (req, res) => {
 
 app.get('/healthz', (_, res) => res.json({ status: 'ok' }));
 app.listen(3003, () => console.log('PaymentService running on port 3003'));
+app.get('/healthz', (req, res) => {
+  res.json({ status: 'ok' });
+});

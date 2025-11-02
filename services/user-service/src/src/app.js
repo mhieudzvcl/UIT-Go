@@ -31,3 +31,6 @@ sequelize
   });
 
 module.exports = app;
+app.get('/healthz', (req, res) => {
+  res.json({ status: 'ok' });
+});

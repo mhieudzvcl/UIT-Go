@@ -19,5 +19,7 @@ const start = async () => {
     process.exit(1);
   }
 };
-
+app.get('/healthz', (req, res) => {
+  res.json({ status: 'ok' });
+});
 start();
