@@ -1,4 +1,4 @@
-# (khuyến nghị xoá dòng version vì đã deprecated)
+version: '3.9'
 services:
   db:
     image: postgres:15-alpine
@@ -10,57 +10,92 @@ services:
       - '5432:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
-      # Tuỳ chọn: nếu muốn auto-create DBs khi volume MỚI
-      # - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./sql/000-init-databases.sql:/docker-entrypoint-initdb.d/000-init-databases.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
+      interval: 3s
+      timeout: 3s
+      retries: 10
 
   redis:
     image: redis:alpine
     container_name: redis
-    ports:
-      - '6379:6379'
+    ports: ['6379:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 3s
+      timeout: 3s
+      retries: 10
 
   user-service:
     build:
       context: ./services/user-service
       dockerfile: Dockerfile
     container_name: user-service
-    ports:
-      - '3000:3000'
     environment:
       - PORT=3000
       - PGURL=postgres://postgres:password@db:5432/userdb
       - JWT_SECRET=supersecret
+    ports:
+      - '3000:3000'
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    command: node server.js
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "fetch(''http://localhost:3000/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   driver-service:
     build:
       context: ./services/driver-service
       dockerfile: Dockerfile
     container_name: driver-service
-    ports:
-      - '8002:8002'
     environment:
       - PORT=8002
       - PGURL=postgres://postgres:password@db:5432/driverdb
-    depends_on:
-      - db
+    ports: ['8002:8002']
+    depends_on: { db: { condition: service_healthy } }
     command: node server.js
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "fetch(''http://localhost:8002/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   payment-service:
     build:
       context: ./services/payment-service
       dockerfile: Dockerfile
     container_name: payment-service
-    ports:
-      - '3004:3004'
     environment:
       - PORT=3004
-      - DATABASE_URL=postgres://postgres:password@db:5432/payments
+      - PGURL=postgres://postgres:password@db:5432/payments
       - REDIS_URL=redis://redis:6379
+    ports: ['3004:3004']
     depends_on:
-      - db
-      - redis
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    command: node server.js
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "fetch(''http://localhost:3004/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   trip-service:
     build:
@@ -68,19 +103,17 @@ services:
       dockerfile: Dockerfile
     container_name: trip-service
     ports:
-      - '8082:8082'
+      - '8082:8082' # publish ra host
+    command: node src/app.js
     environment:
       - PORT=8082
-      - DB_URL=postgres://postgres:password@db:5432/tripdb
-      - USER_SERVICE_URL=http://user-service:3000
-      - DRIVER_SERVICE_URL=http://driver-service:8002 # ✅ sửa ở đây
+      - PGURL=postgres://postgres:password@db:5432/tripdb
+      - DRIVER_SERVICE_URL=http://driver-service:8002
       - PAYMENT_SERVICE_URL=http://payment-service:3004
-      - JWT_SECRET=uitgo_secret
+      - USER_SERVICE_URL=http://user-service:3000
     depends_on:
-      - db
-      - user-service
-      - driver-service
-      - payment-service
+      db:
+        condition: service_healthy
 
 volumes:
-  db_data:
+  db_data: {}

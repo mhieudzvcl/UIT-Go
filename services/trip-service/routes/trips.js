@@ -1,11 +1,13 @@
-import express from 'express';
-import { verifyToken } from '../middleware/auth.js';
-import { createTripHandler, completeTripHandler, getTripHandler } from '../controllers/trip.controller.js';
+import express from 'express'
+import {
+  createTripHandler,
+  getTripHandler,
+  completeTripHandler,
+} from '../controllers/trip.controller.js'
 
-const router = express.Router();
+const router = express.Router()
+router.post('/', createTripHandler)
+router.get('/:id', getTripHandler)
+router.post('/:id/complete', completeTripHandler)
 
-router.post('/', verifyToken, createTripHandler);
-router.post('/:id/complete', verifyToken, completeTripHandler);
-router.get('/:id', verifyToken, getTripHandler);
-
-export default router;
+export default router

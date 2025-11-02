@@ -1,9 +1,10 @@
 import axios from 'axios'
-const base = process.env.DRIVER_SERVICE_URL // http://driver-service:8002
+const BASE = process.env.DRIVER_SERVICE_URL || 'http://driver-service:8002'
 
 export async function findNearbyDriver(lat, lng) {
-  const res = await axios.get(`${base}/drivers`, {
-    params: { near: `${lat},${lng}`, radius_km: 3, status: 'online' },
+  const { data } = await axios.get(`${BASE}/drivers/search`, {
+    params: { lat, lng, radius_km: 3, status: 'online' },
+    timeout: 3000,
   })
-  return res.data?.[0] || null
+  return Array.isArray(data) ? data[0] : null
 }

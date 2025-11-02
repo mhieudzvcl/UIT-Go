@@ -1,10 +1,10 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
-import { pool } from './src/db.js'
 import driverRoutes from './routes/drivers.js'
+import { pool } from './src/db.js'
 
-dotenv.config()
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -12,12 +12,11 @@ app.use(express.json())
 app.get('/healthz', (_, res) => res.json({ status: 'ok' }))
 app.use('/drivers', driverRoutes)
 
+// DB connect log
 pool
   .connect()
-  .then(() => console.log('✅ DB connected'))
-  .catch((err) => console.error('❌ DB error', err))
+  .then(() => console.log('Driver DB connected'))
+  .catch((e) => console.error('Driver DB error', e))
 
 const PORT = process.env.PORT || 8002
-app.listen(PORT, '0.0.0.0', () =>
-  console.log(`DriverService running on ${PORT}`)
-)
+app.listen(PORT, '0.0.0.0', () => console.log(`DriverService on ${PORT}`))

@@ -1,8 +1,8 @@
-const lastUpdate = new Map(); // key: driverId -> ts
-export function shouldThrottle(driverId, thresholdMs) {
-  const now = Date.now();
-  const last = lastUpdate.get(driverId) || 0;
-  if (now - last < thresholdMs) return true;
-  lastUpdate.set(driverId, now);
-  return false;
+const seen = new Map()
+export function shouldThrottle(key, ms = 3000) {
+  const now = Date.now()
+  const last = seen.get(key) || 0
+  if (now - last < ms) return true
+  seen.set(key, now)
+  return false
 }

@@ -1,14 +1,7 @@
 FROM node:20-alpine
-
 WORKDIR /app
-
-RUN apk add --no-cache curl
-
 COPY package*.json ./
-RUN npm install --production
-
+RUN npm install --omit=dev
 COPY . .
-
 EXPOSE 8082
-
-CMD ["node", "app.js"]
+CMD ["node","src/app.js"]

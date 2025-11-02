@@ -1,8 +1,7 @@
-const paymentController = require('./controllers/paymentController');
+import { Router } from 'express'
+import { createPayment } from './controllers/paymentController.js'
+const router = Router()
 
-async function routes(fastify) {
-  fastify.post('/payments', paymentController.createPayment);
-  fastify.get('/payments/:id', paymentController.getPaymentById);
-}
+router.post('/', createPayment)
 
-module.exports = routes;
+export default router

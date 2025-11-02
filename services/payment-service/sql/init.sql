@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS payments(
+  id SERIAL PRIMARY KEY,
+  trip_id INT NOT NULL,
+  amount NUMERIC DEFAULT 0,
+  status TEXT DEFAULT 'created',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);

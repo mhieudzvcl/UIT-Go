@@ -1,7 +1,7 @@
-FROM node:20-slim
+FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --omit=dev || npm install
+RUN npm install --omit=dev
 COPY . .
-EXPOSE 8002
-CMD ["node", "server.js"]
+EXPOSE 8082
+CMD ["node","src/app.js"]

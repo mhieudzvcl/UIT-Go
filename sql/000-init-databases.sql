@@ -1,0 +1,4 @@
+﻿CREATE DATABASE userdb;
+CREATE DATABASE driverdb;
+CREATE DATABASE tripdb;
+CREATE DATABASE payments;

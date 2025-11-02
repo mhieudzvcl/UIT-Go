@@ -118,8 +118,8 @@ router.patch('/:id/status', async (req, res) => {
       [value.status, id]
     )
     await q(
-      `INSERT INTO driver_status_history(driver_id, from_status, to_status) VALUES ($1,$2,$3)`,
-      [id, from, value.status]
+      `INSERT INTO driver_status_history(driver_id, status) VALUES ($1,$2)`,
+      [id, value.status]
     )
     res.json(r.rows[0])
   } catch (e) {

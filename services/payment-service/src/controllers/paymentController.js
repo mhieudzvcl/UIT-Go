@@ -1,24 +1,15 @@
-const paymentService = require('../services/paymentService');
+import { createPaymentModel } from '../models/paymentModel.js'
 
-const createPayment = async (req, reply) => {
+export async function createPayment(req, res) {
   try {
-    const payment = await paymentService.processPayment(req.body);
-    reply.code(201).send(payment);
-  } catch (err) {
-    reply.code(500).send({ error: err.message });
+    const { trip_id, amount } = req.body || {}
+    if (!Number.isInteger(trip_id))
+      return res.status(400).json({ error: 'invalid_trip_id' })
+    const money = Number(amount ?? 0)
+    const row = await createPaymentModel(trip_id, money)
+    return res.status(201).json({ ok: true, status: row.status, id: row.id })
+  } catch (e) {
+    console.error('createPayment error', e)
+    return res.status(500).json({ error: 'create_payment_failed' })
   }
-};
-
-const getPaymentById = async (req, reply) => {
-  try {
-    const payment = await paymentService.getPayment(req.params.id);
-    if (!payment) {
-      return reply.code(404).send({ error: 'Payment not found' });
-    }
-    reply.send(payment);
-  } catch (err) {
-    reply.code(500).send({ error: err.message });
-  }
-};
-
-module.exports = { createPayment, getPaymentById };
+}
