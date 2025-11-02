@@ -1,40 +1,86 @@
-version: '3.9'
-
+# (khuyến nghị xoá dòng version vì đã deprecated)
 services:
-  # Chỉ giữ payment-service
+  db:
+    image: postgres:15-alpine
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      # Tuỳ chọn: nếu muốn auto-create DBs khi volume MỚI
+      # - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - PGURL=postgres://postgres:password@db:5432/userdb
+      - JWT_SECRET=supersecret
+    depends_on:
+      - db
+
+  driver-service:
+    build:
+      context: ./services/driver-service
+      dockerfile: Dockerfile
+    container_name: driver-service
+    ports:
+      - '8002:8002'
+    environment:
+      - PORT=8002
+      - PGURL=postgres://postgres:password@db:5432/driverdb
+    depends_on:
+      - db
+    command: node server.js
+
   payment-service:
     build:
       context: ./services/payment-service
       dockerfile: Dockerfile
+    container_name: payment-service
     ports:
-      - '3004:3000'
+      - '3004:3004'
     environment:
+      - PORT=3004
       - DATABASE_URL=postgres://postgres:password@db:5432/payments
       - REDIS_URL=redis://redis:6379
     depends_on:
       - db
       - redis
-  driver-svc:
-    build:
-      context: ./services/driver-service
-      dockerfile: Dockerfile
-    env_file:
-      - ./services/driver-service/.env
-    ports:
-      - '8001:8000' # host:container (đổi host port sang 8001)
-    depends_on:
-      db:
-        condition: service_started
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: payments
-    ports:
-      - '5432:5432'
 
-  redis:
-    image: redis:7-alpine
+  trip-service:
+    build:
+      context: ./services/trip-service
+      dockerfile: Dockerfile
+    container_name: trip-service
     ports:
-      - '6379:6379'
+      - '8082:8082'
+    environment:
+      - PORT=8082
+      - DB_URL=postgres://postgres:password@db:5432/tripdb
+      - USER_SERVICE_URL=http://user-service:3000
+      - DRIVER_SERVICE_URL=http://driver-service:8002 # ✅ sửa ở đây
+      - PAYMENT_SERVICE_URL=http://payment-service:3004
+      - JWT_SECRET=uitgo_secret
+    depends_on:
+      - db
+      - user-service
+      - driver-service
+      - payment-service
+
+volumes:
+  db_data:
