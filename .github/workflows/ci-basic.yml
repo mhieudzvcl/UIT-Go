@@ -1,4 +1,4 @@
-name: UIT-Go CI (basic)
+name: UIT-Go CI (basic + docker build)
 
 on:
   push:
@@ -55,3 +55,16 @@ jobs:
       - name: Test - payment-service (optional)
         working-directory: ./services/payment-service
         run: npm test || echo "no tests yet"
+
+      # ==== BUILD DOCKER IMAGES ====
+      - name: Build Docker image - user-service
+        run: docker build -t uit-go-user-service:gha ./services/user-service
+
+      - name: Build Docker image - trip-service
+        run: docker build -t uit-go-trip-service:gha ./services/trip-service
+
+      - name: Build Docker image - driver-service
+        run: docker build -t uit-go-driver-service:gha ./services/driver-service
+
+      - name: Build Docker image - payment-service
+        run: docker build -t uit-go-payment-service:gha ./services/payment-service
