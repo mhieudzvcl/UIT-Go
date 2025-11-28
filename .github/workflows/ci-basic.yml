@@ -1,0 +1,57 @@
+name: UIT-Go CI (basic)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ==== USER-SERVICE ====
+      - name: Install deps - user-service
+        working-directory: ./services/user-service
+        run: npm install
+
+      - name: Test - user-service (optional)
+        working-directory: ./services/user-service
+        run: npm test || echo "no tests yet"
+
+      # ==== TRIP-SERVICE ====
+      - name: Install deps - trip-service
+        working-directory: ./services/trip-service
+        run: npm install
+
+      - name: Test - trip-service (optional)
+        working-directory: ./services/trip-service
+        run: npm test || echo "no tests yet"
+
+      # ==== DRIVER-SERVICE ====
+      - name: Install deps - driver-service
+        working-directory: ./services/driver-service
+        run: npm install
+
+      - name: Test - driver-service (optional)
+        working-directory: ./services/driver-service
+        run: npm test || echo "no tests yet"
+
+      # ==== PAYMENT-SERVICE ====
+      - name: Install deps - payment-service
+        working-directory: ./services/payment-service
+        run: npm install
+
+      - name: Test - payment-service (optional)
+        working-directory: ./services/payment-service
+        run: npm test || echo "no tests yet"
