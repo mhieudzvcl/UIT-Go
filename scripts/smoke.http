@@ -1,0 +1,44 @@
+### User register
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "user@example.com",
+  "password": "secret123"
+}
+
+### User login
+POST http://localhost:3000/api/sessions
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "secret123"
+}
+
+### Get profile (replace TOKEN)
+GET http://localhost:3000/api/users/me
+Authorization: Bearer TOKEN
+
+### Create trip (replace TOKEN)
+POST http://localhost:8082/trips
+Authorization: Bearer TOKEN
+Content-Type: application/json
+
+{
+  "pickup_lat": 10.75,
+  "pickup_lng": 106.66,
+  "dropoff_lat": 10.78,
+  "dropoff_lng": 106.70
+}
+
+### Cancel trip (replace ID + TOKEN)
+POST http://localhost:8082/trips/ID/cancel
+Authorization: Bearer TOKEN
+
+### Estimate payment directly
+POST http://localhost:3004/payments/estimate
+Content-Type: application/json
+
+{ "distance_km": 5 }
