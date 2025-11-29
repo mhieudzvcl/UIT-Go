@@ -1,0 +1,13 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn.lock
+
+# Env / config secrets
+.env
+.env.*
+
+# Terraform
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.backup
