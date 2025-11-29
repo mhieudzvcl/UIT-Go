@@ -1,5 +1,11 @@
-variable "aws_region" {
+variable "resource_group_name" {
   type        = string
-  description = "AWS region for dev environment"
-  default     = "ap-southeast-1"
+  description = "Existing resource group for UIT-Go dev environment"
+  default     = "UIT-Go"
+}
+
+variable "location" {
+  type        = string
+  description = "Azure region"
+  default     = "koreacentral"
 }

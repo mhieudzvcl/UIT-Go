@@ -16,7 +16,7 @@ docker compose up -d --build || docker-compose up -d --build
 
 echo.
 echo ✅ UIT-Go local deploy done!
-echo - User-service: http://localhost:3000 (hoặc port t dùng)
-echo - Trip-service: http://localhost:3001 (hoặc port t dùng)
+echo - User-service: http://localhost:3000
+echo - Trip-service: http://localhost:3001
 pause
 endlocal

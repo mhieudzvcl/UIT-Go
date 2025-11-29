@@ -2,30 +2,36 @@ terraform {
   required_version = ">= 1.6.0"
 
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
     }
   }
 }
 
-provider "aws" {
-  region = var.aws_region
+provider "azurerm" {
+  features {}
 }
 
-# Tag chung cho project
 locals {
   common_tags = {
     Project = "UIT-Go"
     Env     = "dev"
-    Owner   = "Group4"
+    Owner   = "Group"
   }
 }
 
-# ECR cho user-service
-module "user_service_ecr" {
-  source       = "../../modules/service_ecr"
+# ========== USER-SERVICE ==========
+module "user_service" {
+  source = "../../modules/service_container"
+
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
   service_name = "user-service"
+  # Image ví dụ; sau này có thể chỉnh lại cho đúng tên ACR
+  image       = "uitgoacrdev.azurecr.io/user-service:latest"
+  port        = 3000
 
   tags = merge(
     local.common_tags,
@@ -35,10 +41,16 @@ module "user_service_ecr" {
   )
 }
 
-# ECR cho trip-service
-module "trip_service_ecr" {
-  source       = "../../modules/service_ecr"
+# ========== TRIP-SERVICE ==========
+module "trip_service" {
+  source = "../../modules/service_container"
+
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
   service_name = "trip-service"
+  image        = "uitgoacrdev.azurecr.io/trip-service:latest"
+  port         = 3000
 
   tags = merge(
     local.common_tags,
