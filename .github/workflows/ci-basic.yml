@@ -2,9 +2,9 @@ name: UIT-Go CI (basic + docker build)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, moduleE ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, moduleE ]
 
 jobs:
   build_and_test:
