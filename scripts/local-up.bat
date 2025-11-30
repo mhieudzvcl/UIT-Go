@@ -15,7 +15,7 @@ echo [2] Starting new containers (build + up -d)...
 docker compose up -d --build || docker-compose up -d --build
 
 echo.
-echo ✅ UIT-Go local deploy done!
+echo  UIT-Go local deploy done!
 echo - User-service: http://localhost:3000
 echo - Trip-service: http://localhost:3001
 pause

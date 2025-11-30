@@ -21,6 +21,6 @@ docker build -t uit-go-user:local .\services\user-service
 docker build -t uit-go-trip:local .\services\trip-service
 
 echo.
-echo ✅ Local CI done (build + docker)!
+echo  Local CI done (build + docker)!
 pause
 endlocal

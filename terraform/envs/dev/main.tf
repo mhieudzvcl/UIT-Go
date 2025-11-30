@@ -29,7 +29,6 @@ module "user_service" {
   location            = var.location
 
   service_name = "user-service"
-  # Image ví dụ; sau này có thể chỉnh lại cho đúng tên ACR
   image       = "uitgoacrdev.azurecr.io/user-service:latest"
   port        = 3000
 
