@@ -1,119 +1,217 @@
 version: '3.9'
+
 services:
-  db:
+  # ===== PostgreSQL Databases (one per service) =====
+
+  # Payment Service Database
+  payment-db:
     image: postgres:15-alpine
-    container_name: db
+    container_name: uit-go-payment-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: payments
     ports:
       - '5432:5432'
     volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./sql/000-init-databases.sql:/docker-entrypoint-initdb.d/000-init-databases.sql:ro
+      - payment_db_data:/var/lib/postgresql/data
+      - ./services/payment-service/init.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
-      interval: 3s
-      timeout: 3s
-      retries: 10
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uit-network
 
-  redis:
-    image: redis:alpine
-    container_name: redis
-    ports: ['6379:6379']
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 3s
-      timeout: 3s
-      retries: 10
-
-  user-service:
-    build:
-      context: ./services/user-service
-      dockerfile: Dockerfile
-    container_name: user-service
+  # Trip Service Database
+  trip-db:
+    image: postgres:15-alpine
+    container_name: uit-go-trip-db
     environment:
-      - PORT=3000
-      - PGURL=postgres://postgres:password@db:5432/userdb
-      - JWT_SECRET=supersecret
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tripdb
     ports:
-      - '3000:3000'
-    depends_on:
-      db:
-        condition: service_healthy
-    command: node server.js
+      - '5433:5432'
+    volumes:
+      - trip_db_data:/var/lib/postgresql/data
+      - ./services/trip-service/tripsdb.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'node -e "fetch(''http://localhost:3000/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
-        ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uit-network
 
-  driver-service:
-    build:
-      context: ./services/driver-service
-      dockerfile: Dockerfile
-    container_name: driver-service
+  # User Service Database
+  user-db:
+    image: postgres:15-alpine
+    container_name: uit-go-user-db
     environment:
-      - PORT=8002
-      - PGURL=postgres://postgres:password@db:5432/driverdb
-    ports: ['8002:8002']
-    depends_on: { db: { condition: service_healthy } }
-    command: node server.js
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: userdb
+    ports:
+      - '5434:5432'
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+      - ./init-userdb.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'node -e "fetch(''http://localhost:8002/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
-        ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uit-network
 
+  # Driver Service Database
+  driver-db:
+    image: postgres:15-alpine
+    container_name: uit-go-driver-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: driverdb
+    ports:
+      - '5435:5432'
+    volumes:
+      - driver_db_data:/var/lib/postgresql/data
+      - ./services/driver-service/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uit-network
+
+  # Redis Cache (shared)
+  redis:
+    image: redis:7-alpine
+    container_name: uit-go-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - uit-network
+
+  # Jaeger all-in-one for local tracing demo
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: uit-go-jaeger
+    ports:
+      - '16686:16686' # UI
+      - '4317:4317' # OTLP gRPC
+      - '4318:4318' # OTLP HTTP
+    networks:
+      - uit-network
+
+  # Payment Service
   payment-service:
     build:
       context: ./services/payment-service
       dockerfile: Dockerfile
-    container_name: payment-service
+    container_name: uit-go-payment
+    ports:
+      - '3004:3000'
     environment:
-      - PORT=3004
-      - PGURL=postgres://postgres:password@db:5432/payments
+      - PORT=3000
+      - DATABASE_URL=postgres://postgres:password@payment-db:5432/payments
       - REDIS_URL=redis://redis:6379
-    ports: ['3004:3004']
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=payment-service
     depends_on:
-      db: { condition: service_healthy }
-      redis: { condition: service_healthy }
-    command: node server.js
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'node -e "fetch(''http://localhost:3004/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
-        ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      payment-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      jaeger:
+        condition: service_started
+    networks:
+      - uit-network
 
+  # Driver Service
+  driver-service:
+    build:
+      context: ./services/driver-service
+      dockerfile: Dockerfile
+    container_name: uit-go-driver
+    ports:
+      - '8000:8000'
+    environment:
+      - DB_URL=postgres://postgres:password@driver-db:5432/driverdb
+      - PORT=8000
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=driver-service
+    depends_on:
+      driver-db:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    networks:
+      - uit-network
+
+  # Trip Service
   trip-service:
     build:
       context: ./services/trip-service
       dockerfile: Dockerfile
-    container_name: trip-service
+    container_name: uit-go-trip
     ports:
-      - '8082:8082' # publish ra host
-    command: node src/app.js
+      - '8082:8082'
     environment:
       - PORT=8082
-      - PGURL=postgres://postgres:password@db:5432/tripdb
-      - DRIVER_SERVICE_URL=http://driver-service:8002
-      - PAYMENT_SERVICE_URL=http://payment-service:3004
+      - DB_URL=postgres://postgres:password@trip-db:5432/tripdb
       - USER_SERVICE_URL=http://user-service:3000
+      - DRIVER_SERVICE_URL=http://driver-service:8000
+      - PAYMENT_SERVICE_URL=http://payment-service:3000
+      - JWT_SECRET=uitgo_secret
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=trip-service
     depends_on:
-      db:
+      trip-db:
         condition: service_healthy
+      jaeger:
+        condition: service_started
+    networks:
+      - uit-network
+
+  # User Service
+  user-service:
+    build:
+      context: ./services/user-service/src
+      dockerfile: Dockerfile
+    container_name: uit-go-user
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - DB_URL=postgres://postgres:password@user-db:5432/userdb
+      - JWT_SECRET=uitgo_secret
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=user-service
+    depends_on:
+      user-db:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    networks:
+      - uit-network
 
 volumes:
-  db_data: {}
+  payment_db_data:
+  trip_db_data:
+  user_db_data:
+  driver_db_data:
+  redis_data:
+
+networks:
+  uit-network:
+    driver: bridge

@@ -1,0 +1,129 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            {
+              "expression": "IF(m2 == 0, 1, m1 / m2)",
+              "label": "PaymentSuccessRate",
+              "id": "e1"
+            },
+            ["UITGo/SLI", "PaymentSuccessCount", { "id": "m1", "stat": "Sum" }],
+            ["UITGo/SLI", "PaymentAttemptCount", { "id": "m2", "stat": "Sum" }]
+          ]
+        ],
+        "period": 60,
+        "title": "Payment Success Rate (SLO)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [["UITGo/SLI", "MatchLatencyMs", { "stat": "p95" }]],
+        "period": 60,
+        "title": "Match API p95 Latency (ms)",
+        "view": "timeSeries",
+        "region": "us-east-1"
+      }
+    },
+    {
+      "type": "text",
+      "x": 8,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "markdown": "**Error Budget**\n\nPayment SLO: 99.95% over 30d. Error budget = 0.05% of requests.\n\nAlert if PaymentSuccessRate < 99.95% for 5m."
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            {
+              "expression": "IF(m2 == 0, 1, m1 / m2)",
+              "label": "BookingSuccessRate",
+              "id": "e1"
+            },
+            ["UITGo/SLI", "BookingSuccessCount", { "id": "m1", "stat": "Sum" }],
+            ["UITGo/SLI", "BookingAttemptCount", { "id": "m2", "stat": "Sum" }]
+          ]
+        ],
+        "period": 60,
+        "title": "Booking Success Rate (SLO)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 12,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["UITGo/SLI", "LoginSuccessCount", { "id": "m1", "stat": "Sum" }],
+          ["UITGo/SLI", "LoginAttemptCount", { "id": "m2", "stat": "Sum" }],
+          [{ "expression": "IF(m2 == 0, 1, m1 / m2)", "label": "AuthSuccessRate", "id": "e1" }]
+        ],
+        "period": 60,
+        "title": "Auth Success Rate (SLO)",
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 12,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [["UITGo/SLI", "LoginDurationMs", { "stat": "p95" }]],
+        "period": 60,
+        "title": "Login p95 Latency (ms)",
+        "view": "timeSeries",
+        "region": "us-east-1"
+      }
+    }
+  ]
+}
